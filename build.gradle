@@ -1,0 +1,83 @@
+plugins {
+    id "net.fabricmc.fabric-loom-remap" version "1.15.5"
+    id "com.diffplug.spotless" version "8.2.1"
+}
+
+version = "0.1.0"
+group = "io.github.ivanbanny"
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        dirtflow {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:1.21.11"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:0.18.4"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.141.2+1.21.11"
+    testImplementation "org.junit.jupiter:junit-jupiter:5.11.4"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.11.4"
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    withSourcesJar()
+}
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = "UTF-8"
+}
+processResources {
+    inputs.property "version", project.version
+    filesMatching("fabric.mod.json") { expand "version": project.version }
+}
+jar { from("LICENSE") }
+test { useJUnitPlatform() }
+
+spotless {
+    java {
+        target "src/**/*.java"
+        googleJavaFormat("1.28.0").aosp()
+        importOrder("", "java", "javax", "\\#")
+        removeUnusedImports()
+    }
+}
+
+fabricApi.configureTests {
+    createSourceSet = true
+    modId = "dirtflow-tests"
+    enableGameTests = true
+    enableClientGameTests = true
+}
+loom.runs.gameTest {
+    runDir "build/gameTest"
+    vmArg "-Xmx1G"
+    vmArg "-XX:ActiveProcessorCount=2"
+    vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('reports/gameTest.xml').get().asFile}"
+}
+loom.runs.clientGameTest {
+    vmArg "-Xmx1G"
+    vmArg "-XX:ActiveProcessorCount=2"
+    // Fabric's network barrier can consume the server's chunk-loading time budget
+    vmArg "-Dfabric.client.gametest.disableNetworkSynchronizer=true"
+}
+
+tasks.register("runtimeClasspath") {
+    dependsOn classes
+    doLast { println sourceSets.main.runtimeClasspath.asPath }
+}
+
+test { exclude "**/EngineIntegrationTest.class" }
+tasks.register("engineIntegrationTest", Test) {
+    description = "Checks the installed Python engine's codec and HTTP job lifecycle."
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform()
+    include "**/EngineIntegrationTest.class"
+}

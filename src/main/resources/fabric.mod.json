@@ -1,0 +1,22 @@
+{
+    "schemaVersion": 1,
+    "id": "dirtflow",
+    "version": "${version}",
+    "name": "Dirtflow",
+    "description": "Generate Minecraft builds from text and the surrounding world.",
+    "authors": ["Ivan Banny"],
+    "contact": {"sources": "https://github.com/IvanBanny/dirtflow-v0-mod"},
+    "license": "MIT",
+    "icon": "assets/dirtflow/icon.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": ["io.github.ivanbanny.Dirtflow"],
+        "client": ["io.github.ivanbanny.client.DirtflowClient"]
+    },
+    "depends": {
+        "fabricloader": ">=0.18.4",
+        "minecraft": "1.21.11",
+        "java": ">=21",
+        "fabric-api": ">=0.141.2+1.21.11"
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "schemaVersion": 1,
+    "id": "dirtflow-tests",
+    "version": "1.0.0",
+    "environment": "*",
+    "entrypoints": {
+        "main": ["io.github.ivanbanny.CommandGameTest"],
+        "fabric-gametest": ["io.github.ivanbanny.PasteGameTest", "io.github.ivanbanny.CommandGameTest"],
+        "fabric-client-gametest": ["io.github.ivanbanny.client.PreviewGameTest"]
+    }
+}
